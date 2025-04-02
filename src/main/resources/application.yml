@@ -1,0 +1,8 @@
+spring:
+  profiles:
+    active: local
+
+ai:
+  api:
+    key: ${ARK_API_KEY:a529dffb-b2b8-4b0d-ab73-35928a6e3d9c}
+    url: https://ark.cn-beijing.volces.com/api/v3

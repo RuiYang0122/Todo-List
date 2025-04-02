@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="redlib.backend.dao.TasksMapper">
+    <resultMap id="BaseResultMap" type="redlib.backend.model.Tasks">
+        <id column="id" jdbcType="INTEGER" property="id" />
+        <result column="title" jdbcType="VARCHAR" property="title" />
+        <result column="dueDate" jdbcType="DATE" property="dueDate" />
+        <result column="category" jdbcType="VARCHAR" property="category" />
+        <result column="status" jdbcType="VARCHAR" property="status" />
+        <result column="description"  jdbcType="VARCHAR" property="description"/>
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP"/>
+        <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP"/>
+        <result column="created_by" property="createdBy" jdbcType="VARCHAR"/>
+        <result column="updated_by" property="updatedBy" jdbcType="VARCHAR"/>
+        <result column="is_today_task" property="isTodayTask" jdbcType="BIT"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id,
+        title,
+        dueDate,
+        category,
+        status,
+        description,
+        created_at,
+        updated_at,
+        created_by,
+        updated_by,
+        is_today_task
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from tasks
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+
+    <insert id="insert" parameterType="redlib.backend.model.Tasks" keyProperty="id" useGeneratedKeys="true">
+        insert into tasks (
+            title,
+            dueDate,
+            category,
+            status,
+            description,
+            created_at,
+            updated_at, 
+            created_by,
+            updated_by
+        )
+        values (
+            #{title,jdbcType=VARCHAR},
+            #{dueDate,jdbcType=DATE},
+            #{category,jdbcType=VARCHAR},
+            #{status,jdbcType=VARCHAR},
+            #{description,jdbcType=VARCHAR},
+            #{createdAt,jdbcType=TIMESTAMP},
+            #{updatedAt,jdbcType=TIMESTAMP},
+            #{createdBy,jdbcType=INTEGER},
+            #{updatedBy,jdbcType=INTEGER}
+        )
+    </insert>
+
+    <update id="updateByPrimaryKey" parameterType="redlib.backend.model.Tasks">
+        update tasks
+        set
+            title = #{title,jdbcType=VARCHAR},
+            dueDate = #{dueDate,jdbcType=DATE},
+            category = #{category,jdbcType=VARCHAR},
+            status = #{status,jdbcType=VARCHAR},
+            description = #{description,jdbcType=VARCHAR},
+            is_today_task = #{isTodayTask,jdbcType=BIT},
+            updated_by = #{updatedBy,jdbcType=INTEGER}
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+
+     <!-- 获取名字个数(分页) -->
+    <select id="count" resultType="integer">
+        select count(*)
+        from tasks
+        <where>
+            <if test="taskName != null and taskName != ''">
+                title like CONCAT('%', #{taskName}, '%')
+            </if>
+            <if test="category != null and category != ''">
+                AND category = #{category}
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+            <if test="startDate != null">
+                AND dueDate >= #{startDate}
+            </if>
+            <if test="endDate != null">
+                AND dueDate &lt;= #{endDate}
+            </if>
+        </where>
+    </select>
+
+
+    <!-- 获取任务(分页) -->
+    <select id="list" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from tasks
+        <where>
+            <if test="queryDTO.taskName != null and queryDTO.taskName != ''">
+                title like CONCAT('%', #{queryDTO.taskName}, '%')
+            </if>
+            <if test="queryDTO.category != null and queryDTO.category != ''">
+                AND category = #{queryDTO.category}
+            </if>
+            <if test="queryDTO.status != null">
+                AND status = #{queryDTO.status}
+            </if>
+            <if test="queryDTO.startDate != null">
+                AND dueDate >= #{queryDTO.startDate}
+            </if>
+            <if test="queryDTO.endDate != null">
+                AND dueDate &lt;= #{queryDTO.endDate}
+            </if>
+        </where>
+        <if test="queryDTO.orderBy != null and queryDTO.orderBy != ''">
+            order by ${queryDTO.orderBy}
+        </if>
+        <if test="queryDTO.orderBy == null or queryDTO.orderBy == ''">
+            order by dueDate ASC, created_at DESC
+        </if>
+        limit #{offset}, #{limit}
+    </select>
+
+    <!-- 3. 批量删除任务（根据ID列表） -->
+    <update id="deleteByCodes">
+        delete from tasks
+        where id in
+        <foreach item="item" index="index" collection="codeList" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+    <!-- 添加今日任务查询条件 -->
+    <select id="listTodayTasks" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from tasks
+        where is_today_task = 1
+        <if test="queryDTO.status != null">
+            AND status = #{queryDTO.status}
+        </if>
+        <if test="queryDTO.startDate != null">
+            AND dueDate >= #{queryDTO.startDate}
+        </if>
+        <if test="queryDTO.endDate != null">
+            AND dueDate &lt;= #{queryDTO.endDate}
+        </if>
+        <if test="queryDTO.orderBy != null and queryDTO.orderBy != ''">
+            order by ${queryDTO.orderBy}
+        </if>
+        <if test="queryDTO.orderBy == null or queryDTO.orderBy == ''">
+            order by dueDate ASC, created_at DESC
+        </if>
+        limit #{offset}, #{limit}
+    </select>
+
+    <!-- 今日任务计数 -->
+    <select id="countTodayTasks" resultType="integer">
+        select count(*)
+        from tasks
+        where is_today_task = 1
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+        <if test="startDate != null">
+            AND dueDate >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            AND dueDate &lt;= #{endDate}
+        </if>
+    </select>
+
+    <delete id="deleteCompleted">
+        DELETE FROM tasks 
+        WHERE status = 'true'
+    </delete>
+
+    <select id="getTaskCompletionStats" resultType="java.util.Map">
+        SELECT 
+            COUNT(*) as total,
+            SUM(CASE WHEN status = 'true' THEN 1 ELSE 0 END) as completed,
+            SUM(CASE WHEN status = 'false' THEN 1 ELSE 0 END) as uncompleted
+        FROM tasks
+    </select>
+
+</mapper>
