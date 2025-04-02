@@ -1,57 +1,16 @@
-# Ant Design Pro
+# todo-list （frontend）✅
+山东大学崇新学堂 | 开放性创新实践Ⅰ软件任务 前端代码
 
-本项目基于Ant design pro改造，支持操作员权限配置，和web-backend配套使用
+🧑‍💻Author： Rui_Yang
 
-## Environment Prepare
+🖥️这是一个基于SpringBoot框架和React —— AntD前端组件开发的todolist待办软件
 
-Install `node_modules`:
+⚙️基本功能包括：
+新建任务、编辑任务、删除任务、标记完成、
+今日待办、任务查询等
 
-```bash
-npm install
-```
+番茄钟🍅 AI任务建议助手🤖
 
-or
+数据库：MySQL
 
-```bash
-yarn
-```
-
-## Provided Scripts
-
-Ant Design Pro provides some useful script to help you quick start and build with web project, code style check and test.
-
-Scripts provided in `package.json`. It's safe to modify or add additional script:
-
-### Start project
-
-```bash
-npm start
-```
-
-### Build project
-
-```bash
-npm run build
-```
-
-### Check code style
-
-```bash
-npm run lint
-```
-
-You can also use script to auto fix some lint error:
-
-```bash
-npm run lint:fix
-```
-
-### Test code
-
-```bash
-npm test
-```
-
-## More
-
-You can view full document on our [official website](https://pro.ant.design). And welcome any feedback in our [github](https://github.com/ant-design/ant-design-pro).
+部分功能展示：
